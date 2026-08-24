@@ -1,0 +1,106 @@
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: var(--font-sans); color: var(--text-primary); }
+  .layer { border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; background: var(--surface-1); }
+  .layer-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; }
+  .nodes { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .node { border: 0.5px solid var(--border-strong); border-radius: var(--radius); padding: 10px 14px; text-align: center; flex: 1; min-width: 120px; max-width: 180px; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: var(--surface-2); }
+  .node:hover { border-color: var(--border-accent); background: var(--bg-accent); }
+  .node-icon { font-size: 22px; margin-bottom: 4px; }
+  .node-title { font-size: 13px; font-weight: 500; }
+  .node-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .arrow-row { display: flex; justify-content: center; align-items: center; padding: 4px 0; }
+  .arrow-row i { font-size: 18px; color: var(--text-muted); }
+  .detail-panel { display: none; border: 0.5px solid var(--border-accent); border-radius: var(--radius); padding: 14px 16px; margin-top: 12px; background: var(--bg-accent); font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+  .detail-panel.active { display: block; }
+  .detail-title { font-weight: 500; font-size: 14px; margin-bottom: 6px; color: var(--text-accent); }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--surface-2); border: 0.5px solid var(--border); color: var(--text-secondary); margin: 2px 2px 2px 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--surface-1); border-radius: var(--radius); padding: 10px 12px; }
+  .stat-label { font-size: 11px; color: var(--text-secondary); }
+  .stat-value { font-size: 20px; font-weight: 500; margin-top: 2px; }
+  .timeline { display: flex; align-items: center; gap: 4px; margin-top: 10px; }
+  .tl-seg { flex: 1; height: 8px; border-radius: 4px; }
+  h2.sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0); }
+</style>
+
+<h2 class="sr-only">System architecture for a cold-chain integrity monitoring system for reefer trucks and cold storage, from in-vehicle sensors through cloud alerting to buyer-facing compliance certificates</h2>
+
+<div class="stats">
+  <div class="stat"><div class="stat-label">Per-vehicle unit</div><div class="stat-value" style="color:var(--text-accent)">₹6–9k</div></div>
+  <div class="stat"><div class="stat-label">Sample rate</div><div class="stat-value" style="color:var(--text-success)">60 sec</div></div>
+  <div class="stat"><div class="stat-label">PMKSY subsidy</div><div class="stat-value" style="color:var(--text-warning)">35–50%</div></div>
+  <div class="stat"><div class="stat-label">Loss at stake</div><div class="stat-value" style="color:var(--text-danger)">₹92k cr/yr</div></div>
+</div>
+
+<div class="layer" id="L1">
+  <div class="layer-label"><i class="ti ti-thermometer" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px"></i> Layer 1 — In-vehicle / in-store sensors</div>
+  <div class="nodes">
+    <div class="node" onclick="showDetail('temp')"><div class="node-icon" style="color:var(--text-danger)"><i class="ti ti-temperature-minus" aria-hidden="true"></i></div><div class="node-title">Wired probes</div><div class="node-sub">2–4 zones</div></div>
+    <div class="node" onclick="showDetail('door')"><div class="node-icon" style="color:var(--text-warning)"><i class="ti ti-door" aria-hidden="true"></i></div><div class="node-title">Door sensor</div><div class="node-sub">Magnetic reed switch</div></div>
+    <div class="node" onclick="showDetail('fuel')"><div class="node-icon" style="color:var(--text-accent)"><i class="ti ti-gauge" aria-hidden="true"></i></div><div class="node-title">Reefer fuel level</div><div class="node-sub">Capacitive sensor</div></div>
+    <div class="node" onclick="showDetail('gps')"><div class="node-icon" style="color:var(--text-success)"><i class="ti ti-map-pin" aria-hidden="true"></i></div><div class="node-title">GPS module</div><div class="node-sub">Location + speed</div></div>
+  </div>
+  <div class="detail-panel" id="detail-temp"><div class="detail-title">Wired temperature probes</div>2–4 NTC thermistor probes per vehicle — front, rear, and per compartment in multi-zone reefers. Wired, not Bluetooth: <span class="tag">zero battery risk</span> on the sensor itself, since a dead sensor battery mid-transit is worse than no sensor at all. ±0.3°C accuracy, rated -40°C to +85°C. <span class="tag">₹400–800 each</span></div>
+  <div class="detail-panel" id="detail-door"><div class="detail-title">Door open/close sensor</div>Magnetic reed switch logs every open/close event with exact timestamp and GPS coordinate. <span class="tag">Core evidence layer</span> — distinguishes a legitimate delivery stop from an unauthorized cargo tamper or a dilution/swap stop. Every event enters the immutable log.</div>
+  <div class="detail-panel" id="detail-fuel"><div class="detail-title">Reefer unit fuel sensor</div>Independent diesel-powered reefer units (Thermo King, Carrier) run off a separate tank from the truck engine. A capacitive fuel-level sensor flags rapid drops that indicate <span class="tag">siphoning or theft</span> — the single most common way operators fake a "compliant" trip while running the reefer half-off to save diesel.</div>
+  <div class="detail-panel" id="detail-gps"><div class="detail-title">GPS + accelerometer</div>Standard GNSS module for location and route. Accelerometer flags harsh braking (spoilage risk from impact) and detects when the vehicle is stationary vs moving — used to auto-adjust sample rate (denser logging while moving).</div>
+</div>
+
+<div class="arrow-row"><i class="ti ti-arrow-down" aria-hidden="true"></i><span style="font-size:11px;color:var(--text-muted);margin:0 8px">Sampled every 60s moving / 15min parked</span><i class="ti ti-arrow-down" aria-hidden="true"></i></div>
+
+<div class="layer" id="L2">
+  <div class="layer-label"><i class="ti ti-cpu" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px"></i> Layer 2 — Edge logger unit</div>
+  <div class="nodes">
+    <div class="node" onclick="showDetail('mcu')"><div class="node-icon" style="color:var(--text-accent)"><i class="ti ti-device-sim" aria-hidden="true"></i></div><div class="node-title">MCU + 4G/GPS</div><div class="node-sub">SIM7600 module</div></div>
+    <div class="node" onclick="showDetail('sign')"><div class="node-icon" style="color:var(--text-danger)"><i class="ti ti-fingerprint" aria-hidden="true"></i></div><div class="node-title">Edge signing</div><div class="node-sub">Hash each reading</div></div>
+    <div class="node" onclick="showDetail('buffer')"><div class="node-icon"><i class="ti ti-device-sd-card" aria-hidden="true"></i></div><div class="node-title">Local buffer</div><div class="node-sub">30-day offline store</div></div>
+    <div class="node" onclick="showDetail('backup')"><div class="node-icon" style="color:var(--text-warning)"><i class="ti ti-battery-3" aria-hidden="true"></i></div><div class="node-title">Backup battery</div><div class="node-sub">Survives power cut</div></div>
+  </div>
+  <div class="detail-panel" id="detail-mcu"><div class="detail-title">Logger hardware</div>ESP32 or STM32 base with SIM7600 4G module (GPS + cellular in one chip). Runs on vehicle 12V power via buck converter. <span class="tag">₹2,500–3,500</span> for the compute + radio module alone, tamper-evident sealed enclosure.</div>
+  <div class="detail-panel" id="detail-sign"><div class="detail-title">Cryptographic signing at the edge</div>Each reading is hashed (SHA-256) and chained to the previous reading's hash before leaving the device — the same structure as a blockchain, minus the network overhead. <span class="tag">This is the actual product</span>: it means nobody, not the driver, not the fleet operator, not even you, can quietly edit a reading after the fact without breaking the chain. That tamper-evidence is what converts a temperature log into evidence a court or an FSSAI auditor will accept.</div>
+  <div class="detail-panel" id="detail-buffer"><div class="detail-title">Local storage buffer</div>MicroSD stores 30 days of full-resolution data. Rural stretches lose 4G coverage regularly — the chain must never have gaps. On reconnect, backlogged readings upload with original timestamps preserved, hash-chain intact.</div>
+  <div class="detail-panel" id="detail-backup"><div class="detail-title">Backup battery</div>Small LiPo cell keeps the logger alive for 4+ hours if the vehicle battery is disconnected — the exact moment someone might try to defeat the system. If main power cuts, the unit logs a <span class="tag">POWER_LOSS</span> event before going dark, so a gap in the log is itself evidence, not a blind spot.</div>
+</div>
+
+<div class="arrow-row"><i class="ti ti-arrow-down" aria-hidden="true"></i><span style="font-size:11px;color:var(--text-muted);margin:0 8px">4G MQTT uplink, retries on reconnect</span><i class="ti ti-arrow-down" aria-hidden="true"></i></div>
+
+<div class="layer" id="L3">
+  <div class="layer-label"><i class="ti ti-cloud" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px"></i> Layer 3 — Cloud platform</div>
+  <div class="nodes">
+    <div class="node" onclick="showDetail('verify')"><div class="node-icon" style="color:var(--text-accent)"><i class="ti ti-shield-check" aria-hidden="true"></i></div><div class="node-title">Chain verification</div><div class="node-sub">Detects gaps + edits</div></div>
+    <div class="node" onclick="showDetail('anomaly')"><div class="node-icon" style="color:var(--text-danger)"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div><div class="node-title">Excursion detection</div><div class="node-sub">Threshold + rate-of-change</div></div>
+    <div class="node" onclick="showDetail('alert')"><div class="node-icon" style="color:var(--text-warning)"><i class="ti ti-bell-ringing" aria-hidden="true"></i></div><div class="node-title">Live alerting</div><div class="node-sub">SMS + WhatsApp + app</div></div>
+    <div class="node" onclick="showDetail('dash')"><div class="node-icon" style="color:var(--text-success)"><i class="ti ti-map" aria-hidden="true"></i></div><div class="node-title">Fleet dashboard</div><div class="node-sub">Live map + history</div></div>
+  </div>
+  <div class="detail-panel" id="detail-verify"><div class="detail-title">Hash chain verification</div>On ingestion, the backend re-verifies each reading's hash against the previous one. A broken chain, an out-of-sequence timestamp, or a gap longer than the expected sample interval is flagged and cannot be silently deleted from the record — it becomes a permanent annotation on that trip's report.</div>
+  <div class="detail-panel" id="detail-anomaly"><div class="detail-title">Temperature excursion detection</div>Two triggers: <span class="tag">threshold breach</span> — reading outside the consignment's set range (e.g. 2–8°C for vaccines) — and <span class="tag">rate-of-change</span> — a temperature climbing 3°C faster than a working compressor should allow, which catches a failing unit before it fully fails. This is the exact failure mode that destroyed an ₹8 lakh pharma consignment in one documented case: a slow refrigerant leak nobody was watching in real time.</div>
+  <div class="detail-panel" id="detail-alert"><div class="detail-title">Live alerting</div>Breach triggers simultaneous alert to driver, fleet manager, and operations head via SMS + WhatsApp + in-app push. The driver alert matters most — they're the only one who can act in the next 10 minutes, before the load is already lost.</div>
+  <div class="detail-panel" id="detail-dash"><div class="detail-title">Fleet dashboard</div>Live map with temperature overlay per vehicle, historical trip logs, door-event timeline, and fuel-drop flags. Built for the fleet operator's ops team — this is the retention product even before the certificate becomes the sales product.</div>
+</div>
+
+<div class="arrow-row"><i class="ti ti-arrow-down" aria-hidden="true"></i><span style="font-size:11px;color:var(--text-muted);margin:0 8px">Trip closes → certificate generated</span><i class="ti ti-arrow-down" aria-hidden="true"></i></div>
+
+<div class="layer" id="L4">
+  <div class="layer-label"><i class="ti ti-certificate" aria-hidden="true" style="font-size:14px; vertical-align:-1px; margin-right:4px"></i> Layer 4 — Output: the thing you actually sell</div>
+  <div class="nodes">
+    <div class="node" onclick="showDetail('cert')"><div class="node-icon" style="color:var(--text-accent)"><i class="ti ti-file-certificate" aria-hidden="true"></i></div><div class="node-title">Cold chain certificate</div><div class="node-sub">Per-consignment, QR-verifiable</div></div>
+    <div class="node" onclick="showDetail('subsidy')"><div class="node-icon" style="color:var(--text-warning)"><i class="ti ti-report-money" aria-hidden="true"></i></div><div class="node-title">PMKSY compliance pack</div><div class="node-sub">Audit-ready export</div></div>
+    <div class="node" onclick="showDetail('claim')"><div class="node-icon" style="color:var(--text-danger)"><i class="ti ti-scale" aria-hidden="true"></i></div><div class="node-title">Dispute evidence</div><div class="node-sub">Rejected-load resolution</div></div>
+  </div>
+  <div class="detail-panel" id="detail-cert"><div class="detail-title">The cold chain certificate</div>A one-page PDF, QR-linked to the full verifiable hash chain, handed to the receiving buyer (hospital pharmacy, retail chain, exporter) at delivery: full temperature range for the trip, door-event count, any excursions with duration. <span class="tag">This is the product, not the sensor.</span> The hardware is a commodity; a certificate the receiving party trusts enough to skip their own inspection is what they'll actually pay a subscription for.</div>
+  <div class="detail-panel" id="detail-subsidy"><div class="detail-title">PMKSY-ready compliance export</div>MoFPI's Integrated Cold Chain scheme funds <span class="tag">refrigerated transport</span> as an explicit eligible component, at 35% (general) to 50% (NE/hill states) of project cost. Your monitoring hardware and subscription can be written into the project cost claimed under this grant — meaning the operator's effective price for your system is roughly half of list, and you export the exact audit trail MoFPI inspection visits ask for.</div>
+  <div class="detail-panel" id="detail-claim"><div class="detail-title">Rejected-load dispute resolution</div>When a buyer rejects a load claiming spoilage, the hash-chained log is the tiebreaker: either it shows a genuine excursion (buyer is right, claim proceeds against the carrier) or it shows the load stayed in-range the whole trip (carrier is protected from a false claim). Fleet operators buy this feature to protect revenue, not just to comply.</div>
+</div>
+
+<script>
+let activeDetail = null;
+function showDetail(id) {
+  const el = document.getElementById('detail-' + id);
+  if (!el) return;
+  if (activeDetail && activeDetail !== el) activeDetail.classList.remove('active');
+  el.classList.toggle('active');
+  activeDetail = el.classList.contains('active') ? el : null;
+}
+</script>
