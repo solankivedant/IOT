@@ -1,94 +1,31 @@
-/*
-  DHCP-based IP printer
+// segments a,b,c,d,e,f,g on Arduino pins 2..8
+const int segPins[7] = {2, 3, 4, 5, 6, 7, 8};
 
-  This sketch uses the DHCP extensions to the Ethernet library
-  to get an IP address via DHCP and print the address obtained.
-  using an Arduino WIZnet Ethernet shield.
-
-  Circuit:
-   Ethernet shield attached to pins 10, 11, 12, 13
-
-  created 12 April 2011
-  modified 9 Apr 2012
-  by Tom Igoe
-  modified 02 Sept 2015
-  by Arturo Guadalupi
-
- */
-
-#include <SPI.h>
-#include <Ethernet.h>
-
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
-byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xC8
+// bit 0 = a, bit 1 = b, ... bit 6 = g  (1 = segment ON on a common-cathode display)
+const byte digits[10] = {
+  0x3F,  // 0
+  0x06,  // 1
+  0x5B,  // 2
+  0x4F,  // 3
+  0x66,  // 4
+  0x6D,  // 5
+  0x7D,  // 6
+  0x07,  // 7
+  0x7F,  // 8
+  0x6F   // 9
 };
 
 void setup() {
-  // You can use Ethernet.init(pin) to configure the CS pin
-  //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH Shield
-  //Ethernet.init(0);   // Teensy 2.0
-  //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit FeatherWing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit FeatherWing Ethernet
-
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
+  for (int i = 0; i < 7; i++) {
+    pinMode(segPins[i], OUTPUT);
   }
-
-  // start the Ethernet connection:
-  Serial.println("Initialize Ethernet with DHCP:");
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    } else if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println("Ethernet cable is not connected.");
-    }
-    // no point in carrying on, so do nothing forevermore:
-    while (true) {
-      delay(1);
-    }
-  }
-  // print your local IP address:
-  Serial.print("My IP address: ");
-  Serial.println(Ethernet.localIP());
 }
 
 void loop() {
-  switch (Ethernet.maintain()) {
-    case 1:
-      //renewed fail
-      Serial.println("Error: renewed fail");
-      break;
-
-    case 2:
-      //renewed success
-      Serial.println("Renewed success");
-      //print your local IP address:
-      Serial.print("My IP address: ");
-      Serial.println(Ethernet.localIP());
-      break;
-
-    case 3:
-      //rebind fail
-      Serial.println("Error: rebind fail");
-      break;
-
-    case 4:
-      //rebind success
-      Serial.println("Rebind success");
-      //print your local IP address:
-      Serial.print("My IP address: ");
-      Serial.println(Ethernet.localIP());
-      break;
-
-    default:
-      //nothing happened
-      break;
+  for (int n = 0; n < 10; n++) {
+    for (int s = 0; s < 7; s++) {
+      digitalWrite(segPins[s], bitRead(digits[n], s));
+    }
+    delay(2000);   // change the number every two seconds
   }
 }
