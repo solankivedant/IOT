@@ -1,31 +1,36 @@
-// segments a,b,c,d,e,f,g on Arduino pins 2..8
-const int segPins[7] = {2, 3, 4, 5, 6, 7, 8};
-
-// bit 0 = a, bit 1 = b, ... bit 6 = g  (1 = segment ON on a common-cathode display)
-const byte digits[10] = {
-  0x3F,  // 0
-  0x06,  // 1
-  0x5B,  // 2
-  0x4F,  // 3
-  0x66,  // 4
-  0x6D,  // 5
-  0x7D,  // 6
-  0x07,  // 7
-  0x7F,  // 8
-  0x6F   // 9
-};
+int led3 = 3;
+int led4 = 4;
+int led5 = 5;
 
 void setup() {
-  for (int i = 0; i < 7; i++) {
-    pinMode(segPins[i], OUTPUT);
-  }
+  pinMode(led3, OUTPUT);
+  pinMode(led4, OUTPUT);
+  pinMode(led5, OUTPUT);
+
+  Serial.begin(9600);
+  Serial.println("Enter a number between 3 and 5:");
 }
 
 void loop() {
-  for (int n = 0; n < 10; n++) {
-    for (int s = 0; s < 7; s++) {
-      digitalWrite(segPins[s], bitRead(digits[n], s));
+  if (Serial.available() > 0) {
+    int num = Serial.parseInt();
+
+    // Clear remaining serial input
+    while (Serial.available() > 0) {
+      Serial.read();
     }
-    delay(2000);   // change the number every two seconds
+
+    if (num < 3 || num > 5) {
+      Serial.println("Number is out of Range.");
+    }
+    else {
+      int ledPin = num;
+
+      digitalWrite(ledPin, HIGH);
+      delay(2000);
+      digitalWrite(ledPin, LOW);
+    }
+
+    Serial.println("Enter a number between 3 and 5:");
   }
 }
