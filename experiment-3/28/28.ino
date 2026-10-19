@@ -1,29 +1,19 @@
-const int segPins[7] = {2, 3, 4, 5, 6, 7, 8};
- 
-const byte digits[10] = {
-  0x3F,  // 0
-  0x06,  // 1
-  0x5B,  // 2
-  0x4F,  // 3
-  0x66,  // 4
-  0x6D,  // 5
-  0x7D,  // 6
-  0x07,  // 7
-  0x7F,  // 8
-  0x6F   // 9
-};
- 
-void setup() {
-  for (int i = 0; i < 7; i++) {
-    pinMode(segPins[i], OUTPUT);
-  }
-}
-void loop() {
-  for (int n = 0; n < 10; n++) {
-	for (int s = 0; s < 7; s++) {
-      		digitalWrite(segPins[s], !bitRead(digits[n], s));
+import RPi.GPIO as GPIO
+import time
 
-    	}
-    delay(2000);   
-  }
-}
+LED_PIN = 11                     # physical pin 11 (GPIO17)
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)         # use physical pin numbers
+GPIO.setup(LED_PIN, GPIO.OUT, initial=GPIO.LOW)
+
+try:
+    while True:
+        GPIO.output(LED_PIN, GPIO.HIGH)   # LED ON
+        time.sleep(1)
+        GPIO.output(LED_PIN, GPIO.LOW)    # LED OFF
+        time.sleep(1)
+except KeyboardInterrupt:
+    pass
+finally:
+    GPIO.cleanup()
